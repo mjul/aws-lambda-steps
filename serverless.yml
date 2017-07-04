@@ -30,6 +30,7 @@ provider:
   # you can define service wide environment variables here
   environment:
     DYNAMODB_SHOPS_TABLE: ${self:service}-${self:provider.stage}-shopsTable
+    DYNAMODB_SALES_TABLE: ${self:service}-${self:provider.stage}-salesTable
   # you can add statements to the Lambda function's IAM Role here
   iamRoleStatements:
     # First, our service needs to be able to access its DynamoDB data store
@@ -41,7 +42,9 @@ provider:
         - "dynamodb:PutItem"
         - "dynamodb:UpdateItem"
         - "dynamodb:DeleteItem"
-      Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_SHOPS _TABLE}
+      Resource:
+        - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_SHOPS_TABLE}
+        - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_SALES_TABLE}
 
 # you can add packaging information here
 package:
@@ -56,6 +59,9 @@ functions:
   upload-shops:
     handler: functions/shops.upload_shops
     payload: 
+  upload-sales:
+    handler: functions/sales.upload_sales
+    payload:
 
 #plugins:
 # - serverless-step-functions
@@ -76,6 +82,29 @@ resources:     # CloudFormation template syntax
           -
             AttributeName: "shopNumber"
             KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    salesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_SALES_TABLE}
+        # Note: DynamoDB is schemaless, except for the key attributes
+        # defined here:
+        AttributeDefinitions:
+          -
+            AttributeName: "shopNumber"
+            AttributeType: "N"
+          -
+            AttributeName: "date"
+            AttributeType: "S"
+        KeySchema:
+          -
+            AttributeName: "shopNumber"
+            KeyType: "HASH"
+          -
+            AttributeName: "date"
+            KeyType: "RANGE"
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1

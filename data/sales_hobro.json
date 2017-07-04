@@ -1,0 +1,7 @@
+{"data": [
+    {"type": "daily-sales", "id": 1, "attributes": {"date": "2017-07-03", "shop_number": 2, "sales": 20000}},
+    {"type": "daily-sales", "id": 2, "attributes": {"date": "2017-07-04", "shop_number": 2, "sales": 24000}},
+    {"type": "daily-sales", "id": 3, "attributes": {"date": "2017-07-05", "shop_number": 2, "sales": 30000}},
+    {"type": "daily-sales", "id": 4, "attributes": {"date": "2017-07-06", "shop_number": 2, "sales": 40000}},
+    {"type": "daily-sales", "id": 5, "attributes": {"date": "2017-07-07", "shop_number": 2, "sales": 36000}}
+]}

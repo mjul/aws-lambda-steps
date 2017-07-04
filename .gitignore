@@ -18,3 +18,7 @@ var/
 
 # Serverless directories
 .serverless
+node_modules/
+
+# IDEA / PyCharm stuff
+.idea/
