@@ -1,0 +1,81 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: aws-step-functions
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+provider:
+  name: aws
+  runtime: python3.6
+  memorySize: 128 # megabytes, 128 or more
+  stage: dev
+  region: eu-central-1
+  # NOTE: You need to create this AWS profile (IAM user) with the
+  # proper permissions
+  # It is called `serverless-admin` in the docs.
+  profile: lambda-functions-dev
+  # you can define service wide environment variables here
+  environment:
+    DYNAMODB_SHOPS_TABLE: ${self:service}-${self:provider.stage}-shopsTable
+  # you can add statements to the Lambda function's IAM Role here
+  iamRoleStatements:
+    # First, our service needs to be able to access its DynamoDB data store
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:Query"
+        - "dynamodb:Scan"
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+        - "dynamodb:DeleteItem"
+      Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_SHOPS _TABLE}
+
+# you can add packaging information here
+package:
+  exclude:
+    - ./**
+  include:
+    - functions/**
+
+functions:
+  hello:
+    handler: functions/hello.hello
+  upload-shops:
+    handler: functions/shops.upload_shops
+    payload: 
+
+#plugins:
+# - serverless-step-functions
+
+resources:     # CloudFormation template syntax
+  Resources:
+    shopsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_SHOPS_TABLE}
+        # Note: DynamoDB is schemaless, except for the key attributes
+        # defined here:
+        AttributeDefinitions:
+          -
+            AttributeName: "shopNumber"
+            AttributeType: "N"
+        KeySchema:
+          -
+            AttributeName: "shopNumber"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

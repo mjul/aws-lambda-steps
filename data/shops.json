@@ -1,0 +1,5 @@
+{"data": [
+    {"type": "shop", "id": 1, "attributes": {"shop_number": 1, "name": "Aalborg"}},
+    {"type": "shop", "id": 2, "attributes": {"shop_number": 2, "name": "Hobro"}},
+    {"type": "shop", "id": 3, "attributes": {"shop_number": 3, "name": "Randers"}}
+]}
