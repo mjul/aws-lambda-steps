@@ -16,6 +16,10 @@ For example, you can try out the `upload-shops` function like this:
 The `-p` option specifies a path to a JSON or YAML file holding input
 data.
 
+### `list-shops`
+Get the list of all shops.
+
+    serverless invoke -f list-shops
 
 ## Sales
 

@@ -58,13 +58,12 @@ functions:
     handler: functions/hello.hello
   upload-shops:
     handler: functions/shops.upload_shops
-    payload: 
+  list-shops:
+    handler: functions/shops.list_shops
   upload-sales:
     handler: functions/sales.upload_sales
-    payload:
   generate-weekly-sales-report:
     handler: functions/sales.generate_weekly_report
-    payload:
 
 #plugins:
 # - serverless-step-functions
