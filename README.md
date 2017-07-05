@@ -4,10 +4,11 @@ This is a demonstration of serverless state machines with AWS Step Functions.
 It uses the [Serverless](https://serverless.com) framework for easy deployment.
 
 
-## Example Data
+# Functions
 You can use the example data in the `data` directory to try out the services.
 
-### Shops
+## Shops
+### `upload-shops`
 For example, you can try out the `upload-shops` function like this:
 
     serverless invoke -f upload-shops -p data/shops.json
@@ -15,9 +16,19 @@ For example, you can try out the `upload-shops` function like this:
 The `-p` option specifies a path to a JSON or YAML file holding input
 data.
 
-### Sales
+
+## Sales
+
+### `upload-sales`
 You can upload some sales data for the shops like so:
 
     serverless invoke -f upload-sales -p data/sales_aalborg.json
     serverless invoke -f upload-sales -p data/sales_hobro.json
     serverless invoke -f upload-sales -p data/sales_randers.json
+
+### `generate-weekly-sales-report`
+This generates the weekly sales report for one shop for one week.
+You must specify the `date` for the report and the `shopNumber`.
+
+    serverless invoke -f generate-weekly-sales-report --data '{"date":"2017-07-12", "shopNumber": 1}'
+

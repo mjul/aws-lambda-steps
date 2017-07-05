@@ -62,6 +62,9 @@ functions:
   upload-sales:
     handler: functions/sales.upload_sales
     payload:
+  generate-weekly-sales-report:
+    handler: functions/sales.generate_weekly_report
+    payload:
 
 #plugins:
 # - serverless-step-functions
