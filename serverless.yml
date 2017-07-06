@@ -31,6 +31,7 @@ provider:
   environment:
     DYNAMODB_SHOPS_TABLE: ${self:service}-${self:provider.stage}-shopsTable
     DYNAMODB_SALES_TABLE: ${self:service}-${self:provider.stage}-salesTable
+    SQS_APPLICATION_QUEUE: ${self:service}-${self:provider.stage}-applicationQueue
   # you can add statements to the Lambda function's IAM Role here
   iamRoleStatements:
     # First, our service needs to be able to access its DynamoDB data store
@@ -45,6 +46,13 @@ provider:
       Resource:
         - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_SHOPS_TABLE}
         - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_SALES_TABLE}
+    # We also need access to the SQS message queue
+    - Effect: "Allow"
+      Action:
+        - "sqs:GetQueueUrl"
+        - "sqs:SendMessage"
+      Resource:
+        - arn:aws:sqs:${opt:region, self:provider.region}:*:${self:provider.environment.SQS_APPLICATION_QUEUE}
 
 # you can add packaging information here
 package:
@@ -64,6 +72,8 @@ functions:
     handler: functions/sales.upload_sales
   generate-weekly-sales-report:
     handler: functions/sales.generate_weekly_report
+  send-message:
+    handler: functions/queue.send_message
 
 #plugins:
 # - serverless-step-functions
@@ -110,3 +120,7 @@ resources:     # CloudFormation template syntax
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    applicationQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:provider.environment.SQS_APPLICATION_QUEUE}
