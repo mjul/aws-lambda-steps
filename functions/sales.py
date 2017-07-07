@@ -1,9 +1,10 @@
+import datetime
 import json
 import os
+import uuid
+
 import boto3
 from boto3.dynamodb.conditions import Key
-
-import datetime
 
 
 def __parse_daily_sales(event):
@@ -50,14 +51,34 @@ def upload_sales(event, context):
     sales = __parse_daily_sales(event)
     __save_sales(sales)
 
-    body = {
-        "message": "Sales data uploaded (count=%d)" % len(sales),
-        "input": event
-    }
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
+    is_success = (len(sales) > 0)
+    if is_success:
+        shop_numbers = sorted(set([s['shop_number'] for s in sales]))
+        unique_dates = sorted([s['date'] for s in sales])
+        min_date = unique_dates[0]
+        max_date = unique_dates[-1]
+        response = {
+            "data": {
+                "id": str(uuid.uuid4()),
+                "type": "sales-uploaded",
+                "attributes": {
+                    "shops": shop_numbers,
+                    "dates": {
+                        "min": min_date.isoformat(),
+                        "max": max_date.isoformat()
+                    }
+                }
+            }
+        }
+    else:
+        response = {
+            "data": {
+                "id": str(uuid.uuid4()),
+                "type": "sales-upload-failed"
+            }
+
+        }
+
     return response
 
 

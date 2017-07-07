@@ -61,6 +61,14 @@ package:
   include:
     - functions/**
 
+# You need to have these plugins for Serverless installed (see package.json)
+plugins:
+  - serverless-step-functions
+  - serverless-pseudo-parameters
+
+#
+# The individual Lambda Functions are defined here
+#
 functions:
   hello:
     handler: functions/hello.hello
@@ -75,9 +83,46 @@ functions:
   send-message:
     handler: functions/queue.send_message
 
-#plugins:
-# - serverless-step-functions
+#
+# The Step Functions (workflows) are defined here
+#
+stepFunctions:
+  stateMachines:
+    upload-sales-step-function:
+      name: ${self:service}-${self:provider.stage}-uploadSales
+      events:
+        - http:
+            path: sales/upload
+            method: POST
+      definition:
+        Comment: "Upload sales data"
+        StartAt: UploadSalesData
+        States:
+          UploadSalesData:
+            Type: Task
+            Resource: arn:aws:lambda:${opt:region, self:provider.region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-upload-sales
+            Next: CheckUploadStatus
+          CheckUploadStatus:
+            Type: Choice
+            Choices:
+            - Variable: "$.data.type"
+              StringEquals: "sales-uploaded"
+              Next: SendSalesDataUploadedEvent
+            Default: ReturnError
+          SendSalesDataUploadedEvent:
+            Type: Task
+            Resource: arn:aws:lambda:${opt:region, self:provider.region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-send-message
+            Next: ReturnSuccess
+          ReturnSuccess:
+            Type: Succeed
+          ReturnError:
+            Type: Fail
+            Cause: "Invalid sales data."
+            Error: "Error."
 
+#
+# Declare the resources that we need to provision
+#
 resources:     # CloudFormation template syntax
   Resources:
     shopsTable:
@@ -124,3 +169,4 @@ resources:     # CloudFormation template syntax
       Type: "AWS::SQS::Queue"
       Properties:
         QueueName: ${self:provider.environment.SQS_APPLICATION_QUEUE}
+

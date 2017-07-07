@@ -3,8 +3,19 @@ This is a demonstration of serverless state machines with AWS Step Functions.
 
 It uses the [Serverless](https://serverless.com) framework for easy deployment.
 
+Make sure the plugins are installed (`npm install`) and then run `serverless deploy`
+to deploy the project.
 
-# Functions
+# Step Functions
+The project defines Step Functions composed of Lambda Functions.
+The Step Functions are exposed over HTTPS.
+
+The Step Functions can be executed like so (you need to substitute the correct URL)
+
+    curl -XPOST https://SOMEPREFIX.execute-api.eu-central-1.amazonaws.com/dev/sales/upload -d  @data/sales_aalborg.json
+
+
+# Lambda Functions
 You can use the example data in the `data` directory to try out the services.
 
 ## Shops
